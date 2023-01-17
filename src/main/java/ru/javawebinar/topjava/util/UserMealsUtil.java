@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class UserMealsUtil {
@@ -18,6 +19,7 @@ public class UserMealsUtil {
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
+                new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 11, 59, 59), "Второй завтрак", 500),
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
         );
@@ -30,15 +32,36 @@ public class UserMealsUtil {
 
     public static List<UserMealWithExcess> filteredByCycles(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
         // TODO return filtered list with excess. Implement by cycles
+
+        List<UserMealWithExcess> result = Collections.synchronizedList(new ArrayList<>());
         Map<LocalDate, Integer> excessTable = new HashMap<>();
-        for (UserMeal meal : meals) {
+        final CountDownLatch LATCH = new CountDownLatch(meals.size());
+        ExecutorService service = Executors.newCachedThreadPool();
+
+        for(UserMeal meal : meals) {
             excessTable.merge(meal.getDateTime().toLocalDate(), meal.getCalories(), Integer::sum);
+
+            if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
+                service.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            LATCH.await();
+                            result.add(new UserMealWithExcess(meal, excessTable.getOrDefault(meal.getDateTime().toLocalDate(), 0) > caloriesPerDay));
+                        } catch (InterruptedException ignore) {}
+                    }
+                });
+            }
+
+            LATCH.countDown();
         }
 
-        List<UserMealWithExcess> result = new ArrayList<>();
-        for (UserMeal meal : meals) {
-            if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime))
-                result.add(new UserMealWithExcess(meal, excessTable.getOrDefault(meal.getDateTime().toLocalDate(), 0) > caloriesPerDay));
+        service.shutdown();
+        while(!service.isShutdown()) {
+
+            try {
+                Thread.currentThread().wait(1);
+            } catch (InterruptedException ignore) {}
         }
 
         return result;
