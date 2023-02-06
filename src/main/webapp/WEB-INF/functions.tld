@@ -14,4 +14,9 @@
         <function-class>ru.javawebinar.topjava.util.DateUtil</function-class>
         <function-signature>java.lang.String formatLocalDateTime(java.time.LocalDateTime)</function-signature>
     </function>
+    <function>
+        <name>toString</name>
+        <function-class>ru.javawebinar.topjava.util.DateUtil</function-class>
+        <function-signature>java.lang.String toString(java.time.LocalDateTime)</function-signature>
+    </function>
 </taglib>
