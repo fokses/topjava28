@@ -4,8 +4,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
+import ru.javawebinar.topjava.web.meal.MealRestController;
 import ru.javawebinar.topjava.web.user.AdminRestController;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 
 public class SpringMain {
@@ -15,6 +18,12 @@ public class SpringMain {
             System.out.println("Bean definition names: " + Arrays.toString(appCtx.getBeanDefinitionNames()));
             AdminRestController adminUserController = appCtx.getBean(AdminRestController.class);
             adminUserController.create(new User(null, "userName", "email@mail.ru", "password", Role.ADMIN));
+
+            MealRestController mealRestController = appCtx.getBean(MealRestController.class);
+            mealRestController.getAll(null, null, null, null).forEach(System.out::println);
+            mealRestController.getAll(null, null, LocalTime.of(10, 0), LocalTime.of(20, 0)).forEach(System.out::println);
+            mealRestController.getAll(null, LocalDate.of(2020, 1, 30), null, null).forEach(System.out::println);
+
         }
     }
 }
