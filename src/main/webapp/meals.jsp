@@ -21,6 +21,15 @@
     <h3><a href="index.html">Home</a></h3>
     <hr/>
     <h2>Meals</h2>
+    <div>
+        <form method="get" action="meals">
+            <label for="startDate">Start date</label><input id="startDate" name="startDate" type="date" value="${startDate}" />
+            <label for="endDate">End date</label><input id="endDate" name="endDate" type="date" value="${endDate}" />
+            <label for="startTime">Start time</label><input id="startTime" name="startTime" type="time" value="${startTime}" />
+            <label for="endTime">End date</label><input id="endTime" name="endTime" type="time" value="${endTime}" />
+            <button type="submit">Filter</button>
+     </form>
+    </div>
     <a href="meals?action=create">Add Meal</a>
     <br><br>
     <table border="1" cellpadding="8" cellspacing="0">
