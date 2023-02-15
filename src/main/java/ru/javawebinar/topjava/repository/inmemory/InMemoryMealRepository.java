@@ -5,13 +5,14 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static ru.javawebinar.topjava.util.UsersUtil.ADMIN_ID;
 
 @Repository
 public class InMemoryMealRepository implements MealRepository {
@@ -20,7 +21,7 @@ public class InMemoryMealRepository implements MealRepository {
 
     {
         for (Meal m : MealsUtil.meals)
-            save(SecurityUtil.authUserId(), m);
+            save(ADMIN_ID, m);
     }
 
     @Override

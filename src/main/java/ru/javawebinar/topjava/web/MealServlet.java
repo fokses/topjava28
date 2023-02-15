@@ -6,6 +6,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.DateTimeUtil;
+import ru.javawebinar.topjava.util.ServletUtil;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import javax.servlet.ServletException;
@@ -37,11 +38,13 @@ public class MealServlet extends HttpServlet {
         String id = request.getParameter("id");
 
         Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
-                LocalDateTime.parse(request.getParameter("dateTime")),
+                Objects.requireNonNull(ServletUtil.getParam(request, "dateTime", LocalDateTime::parse)),
                 request.getParameter("description"),
-                Integer.parseInt(request.getParameter("calories")));
+                Objects.requireNonNull(ServletUtil.getParam(request, "calories", Integer::parseInt))
+        );
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
+
         if (meal.isNew()) {
             restController.create(meal);
         } else {
@@ -56,7 +59,8 @@ public class MealServlet extends HttpServlet {
 
         switch (action == null ? "all" : action) {
             case "delete":
-                int id = getId(request);
+                Integer id = ServletUtil.getParam(request, "id", Integer::parseInt);
+                Objects.requireNonNull(id);
                 log.info("Delete id={}", id);
                 restController.delete(id);
                 response.sendRedirect("meals");
@@ -65,49 +69,27 @@ public class MealServlet extends HttpServlet {
             case "update":
                 final Meal meal = "create".equals(action) ?
                         new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
-                        restController.get(getId(request));
+                        restController.get(Objects.requireNonNull(ServletUtil.getParam(request, "id", Integer::parseInt)));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
             case "all":
             default:
-                log.info("getAll");
-                LocalDate startDate = getLocalDate(request, "startDate");
-                LocalDate endDate = getLocalDate(request, "endDate");
-                LocalTime startTime = getLocalTime(request, "startTime");
-                LocalTime endTime = getLocalTime(request, "endTime");
+                LocalDate startDate,endDate;
+                request.setAttribute("startDate", startDate = ServletUtil.getParam(request, "startDate", DateTimeUtil::toLocalDate));
+                request.setAttribute("endDate", endDate = ServletUtil.getParam(request, "endDate", DateTimeUtil::toLocalDate));
 
-                request.setAttribute("startDate", startDate);
-                request.setAttribute("endDate", endDate);
-                request.setAttribute("startTime", startTime);
-                request.setAttribute("endTime", endTime);
+                LocalTime startTime, endTime;
+                request.setAttribute("startTime", startTime = ServletUtil.getParam(request, "startTime", DateTimeUtil::toLocalTime));
+                request.setAttribute("endTime", endTime = ServletUtil.getParam(request, "endTime", DateTimeUtil::toLocalTime));
+
+                log.info("getAll {} - {} : {} - {}", startDate, endDate, startTime, endTime);
 
                 request.setAttribute("meals", restController.getAll(startDate, endDate,
                         startTime, endTime));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
-    }
-
-    private int getId(HttpServletRequest request) {
-        String paramId = Objects.requireNonNull(request.getParameter("id"));
-        return Integer.parseInt(paramId);
-    }
-
-    private LocalDate getLocalDate(HttpServletRequest request, String param) {
-        String value = request.getParameter(param);
-        if (value == null || value.isEmpty())
-            return null;
-
-        return DateTimeUtil.toLocalDate(value);
-    }
-
-    private LocalTime getLocalTime(HttpServletRequest request, String param) {
-        String value = request.getParameter(param);
-        if (value == null|| value.isEmpty())
-            return null;
-
-        return DateTimeUtil.toLocalTime(value);
     }
 
     @Override
