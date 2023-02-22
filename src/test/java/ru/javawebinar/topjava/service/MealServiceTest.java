@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
@@ -29,6 +30,7 @@ import static ru.javawebinar.topjava.MealTestData.*;
         "classpath:spring/spring-db.xml"
 })
 @RunWith(SpringRunner.class)
+@ActiveProfiles("jdbc")
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
