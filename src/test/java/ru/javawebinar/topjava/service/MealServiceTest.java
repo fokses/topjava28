@@ -1,8 +1,13 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TestName;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,7 +18,11 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -31,6 +40,36 @@ public class MealServiceTest {
 
     @Autowired
     private MealService service;
+
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+
+    private static final Map<String, Long> timeTable = new LinkedHashMap<>();
+
+    @Rule
+    public final TestName name = new TestName();
+
+    @Rule
+    public final TestRule watchman = new TestWatcher() {
+
+        private LocalDateTime start;
+
+        @Override
+        protected void starting(Description description) {
+            super.starting(description);
+            start = LocalDateTime.now();
+        }
+
+        @Override
+        protected void finished(Description description) {
+            super.finished(description);
+            long timeOfExecution = ChronoUnit.MILLIS.between(start, LocalDateTime.now());
+            String methodName = name.getMethodName();
+            timeTable.put(methodName, timeOfExecution);
+            log.debug("TEST {} execution time {} ms", methodName, timeOfExecution);
+
+            start = null;
+        }
+    };
 
     @Test
     public void delete() {
@@ -109,5 +148,16 @@ public class MealServiceTest {
     @Test
     public void getBetweenWithNullDates() {
         MEAL_MATCHER.assertMatch(service.getBetweenInclusive(null, null, USER_ID), meals);
+    }
+
+    @AfterClass
+    public static void afterAll() {
+        System.out.print(" ========================== ");
+        System.out.print("Time of methods execution:");
+        System.out.print(" ========================== ");
+        System.out.println();
+        for (Map.Entry<String, Long> entry : timeTable.entrySet()) {
+            System.out.printf("%s: %d ms\n", entry.getKey(), entry.getValue());
+        }
     }
 }
