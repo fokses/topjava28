@@ -63,6 +63,14 @@
         </bean>
     </beans>
 
+    <beans profile="jpa">
+        <context:component-scan base-package="ru.javawebinar.**.repository.jpa"/>
+    </beans>
+
+    <beans profile="datajpa">
+        <context:component-scan base-package="ru.javawebinar.**.repository.datajpa"/>
+        <jpa:repositories base-package="ru.javawebinar.**.repository.datajpa"/>
+    </beans>
     <beans profile="jpa,datajpa">
         <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
               p:dataSource-ref="dataSource"
@@ -92,12 +100,4 @@
               p:entityManagerFactory-ref="entityManagerFactory"/>
     </beans>
 
-    <beans profile="jpa">
-            <context:component-scan base-package="ru.javawebinar.**.repository.jpa"/>
-    </beans>
-
-    <beans profile="datajpa">
-        <context:component-scan base-package="ru.javawebinar.**.repository.datajpa"/>
-        <jpa:repositories base-package="ru.javawebinar.**.repository.datajpa"/>
-    </beans>
 </beans>
