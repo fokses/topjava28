@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.repository.datajpa;
 
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
@@ -26,7 +25,6 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     @Transactional
-    @Modifying
     public Meal save(Meal meal, int userId) {
         User u = userRepository.getReferenceById(userId);
         meal.setUser(u);
@@ -40,8 +38,6 @@ public class DataJpaMealRepository implements MealRepository {
     }
 
     @Override
-    @Transactional
-    @Modifying
     public boolean delete(int id, int userId) {
         return mealRepository.deleteMealByIdAndUserId(id, userId) != 0;
     }
@@ -65,5 +61,9 @@ public class DataJpaMealRepository implements MealRepository {
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return mealRepository.findAllByDateTimeGreaterThanEqualAndDateTimeLessThanAndUserId(SORT_DATE_TIME, startDateTime, endDateTime, userId);
+    }
+
+    public Meal getWithUser(int id, int userId) {
+        return mealRepository.getWithUser(id, userId);
     }
 }

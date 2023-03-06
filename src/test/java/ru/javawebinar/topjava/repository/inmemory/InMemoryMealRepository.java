@@ -65,6 +65,11 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
+    public Meal getWithUser(int id, int userId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public List<Meal> getAll(int userId) {
         return filterByPredicate(userId, meal -> true);
     }
