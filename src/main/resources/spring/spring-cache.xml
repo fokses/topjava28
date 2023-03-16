@@ -3,18 +3,48 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:cache="http://www.springframework.org/schema/cache"
        xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
          http://www.springframework.org/schema/beans/spring-beans.xsd
          http://www.springframework.org/schema/cache
-         http://www.springframework.org/schema/cache/spring-cache.xsd">
-
+         http://www.springframework.org/schema/cache/spring-cache.xsd
+         http://www.springframework.org/schema/util
+         https://www.springframework.org/schema/util/spring-util.xsd">
     <!-- enables scanning for @Cacheable annotation -->
     <cache:annotation-driven cache-manager="ehCacheManager"/>
 
-    <!--https://imhoratiu.wordpress.com/2017/01/26/spring-4-with-ehcache-3-how-to/-->
-    <bean id="ehCacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
-        <property name="cacheManager">
-            <bean class="org.springframework.cache.jcache.JCacheManagerFactoryBean" p:cacheManagerUri="classpath:cache/ehcache.xml"/>
-        </property>
-    </bean>
+    <beans profile="!woCache">
+        <!--https://imhoratiu.wordpress.com/2017/01/26/spring-4-with-ehcache-3-how-to/-->
+        <bean id="ehCacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
+            <property name="cacheManager">
+                <bean class="org.springframework.cache.jcache.JCacheManagerFactoryBean" p:cacheManagerUri="classpath:cache/ehcache.xml"/>
+            </property>
+        </bean>
+
+        <util:map id="jpaProperyMap" map-class="java.util.HashMap">
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).FORMAT_SQL}" value="${hibernate.format_sql}"/>
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).USE_SQL_COMMENTS}" value="${hibernate.use_sql_comments}"/>
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).JPA_PROXY_COMPLIANCE}" value="false"/>
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).CACHE_REGION_FACTORY}" value="org.hibernate.cache.jcache.internal.JCacheRegionFactory"/>
+            <entry key="#{T(org.hibernate.cache.jcache.ConfigSettings).PROVIDER}" value="org.ehcache.jsr107.EhcacheCachingProvider"/>
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).USE_SECOND_LEVEL_CACHE}" value="true"/>
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).USE_QUERY_CACHE}" value="false"/> <!--default-->
+        </util:map>
+
+    </beans>
+
+    <beans profile="woCache">
+        <bean id="ehCacheManager" class="org.springframework.cache.support.NoOpCacheManager">
+        </bean>
+
+        <util:map id="jpaProperyMap" map-class="java.util.HashMap">
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).FORMAT_SQL}" value="${hibernate.format_sql}"/>
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).USE_SQL_COMMENTS}" value="${hibernate.use_sql_comments}"/>
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).JPA_PROXY_COMPLIANCE}" value="false"/>
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).USE_SECOND_LEVEL_CACHE}" value="false"/>
+            <entry key="#{T(org.hibernate.cfg.AvailableSettings).USE_QUERY_CACHE}" value="false"/> <!--default-->
+        </util:map>
+
+    </beans>
+
 </beans>
