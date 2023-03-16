@@ -22,7 +22,7 @@ import java.util.*;
 
 @Repository
 @Transactional(readOnly = true)
-public class JdbcUserRepository implements UserRepository {
+public class JdbcUserRepository extends JdbcRepository implements UserRepository {
 
     private static final ResultSetExtractor<List<User>> RSE = new ResultSetExtractor<>() {
         @Override
@@ -114,6 +114,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     @Transactional
     public User save(User user) {
+        validateEntiry(user);
         BeanPropertySqlParameterSource parameterSource = new BeanPropertySqlParameterSource(user);
 
         if (user.isNew()) {
@@ -150,7 +151,6 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public User getByEmail(String email) {
-//        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
         List<User> users = jdbcTemplate.query("SELECT * FROM users LEFT OUTER JOIN user_role ON (users.id = user_role.user_id) WHERE email=?", RSE, email);
         return DataAccessUtils.singleResult(users);
     }

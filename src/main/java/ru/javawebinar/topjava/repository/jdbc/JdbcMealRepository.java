@@ -17,7 +17,7 @@ import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
-public class JdbcMealRepository implements MealRepository {
+public class JdbcMealRepository extends JdbcRepository implements MealRepository {
 
     private static final RowMapper<Meal> ROW_MAPPER = BeanPropertyRowMapper.newInstance(Meal.class);
 
@@ -39,6 +39,8 @@ public class JdbcMealRepository implements MealRepository {
     @Override
     @Transactional
     public Meal save(Meal meal, int userId) {
+        validateEntiry(meal);
+
         MapSqlParameterSource map = new MapSqlParameterSource()
                 .addValue("id", meal.getId())
                 .addValue("description", meal.getDescription())
