@@ -91,8 +91,8 @@ class MealRestControllerTest extends AbstractControllerTest {
         URI between = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_MEALS)
                 .path("/between")
-                .queryParam("start", startDateTime)
-                .queryParam("end", endDateTime)
+                .queryParam("startDate", startDateTime.toLocalDate())
+                .queryParam("endDate", endDateTime.toLocalDate())
                 .build().toUri();
 
         perform(get(between))
@@ -100,8 +100,24 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MEALTO_MATCHER.contentJson(
-                        MealsUtil.getFilteredTos(meals, SecurityUtil.authUserCaloriesPerDay(),
-                            startDateTime.toLocalTime(), endDateTime.toLocalTime())
+                        MealsUtil.getTos(meals, SecurityUtil.authUserCaloriesPerDay())
+                        )
+                );
+
+        between = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(REST_MEALS)
+                .path("/between")
+                .queryParam("startTime", startDateTime.toLocalTime())
+                .queryParam("endTime", endDateTime.toLocalTime())
+                .build().toUri();
+
+        perform(get(between))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MEALTO_MATCHER.contentJson(
+                                MealsUtil.getFilteredTos(meals, SecurityUtil.authUserCaloriesPerDay(),
+                                        startDateTime.toLocalTime(), endDateTime.toLocalTime())
                         )
                 );
     }
