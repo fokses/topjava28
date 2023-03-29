@@ -5,12 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import ru.javawebinar.topjava.MatcherFactory;
 import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
+
+import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -84,4 +88,26 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(USER_MATCHER.contentJson(admin, guest, user));
     }
+
+    @Test
+    void getWithMeals() throws Exception {
+
+        URI getWithMealsUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(REST_URL)
+                .path("/with-meals")
+                .queryParam("id", ADMIN_ID)
+                .build().toUri();
+
+        User adminWithMeals = getAdminWithMeals();
+
+        perform(MockMvcRequestBuilders.get(getWithMealsUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MatcherFactory
+                        .usingIgnoringFieldsComparator(User.class, "registered", "meals.user")
+                        .contentJson(adminWithMeals)
+                );
+    }
+
 }

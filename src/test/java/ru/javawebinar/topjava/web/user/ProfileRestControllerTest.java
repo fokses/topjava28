@@ -4,10 +4,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import ru.javawebinar.topjava.MatcherFactory;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
+
+import java.net.URI;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -45,4 +49,26 @@ class ProfileRestControllerTest extends AbstractControllerTest {
 
         USER_MATCHER.assertMatch(userService.get(USER_ID), updated);
     }
+
+    @Test
+    void getWithMeals() throws Exception {
+
+        URI getWithMealsUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(REST_URL)
+                .path("/with-meals")
+                .queryParam("id", USER_ID)
+                .build().toUri();
+
+        User userWithMeals = getUserWithMeals();
+
+        perform(MockMvcRequestBuilders.get(getWithMealsUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MatcherFactory
+                        .usingIgnoringFieldsComparator(User.class, "registered", "meals.user")
+                        .contentJson(userWithMeals)
+                );
+    }
+
 }

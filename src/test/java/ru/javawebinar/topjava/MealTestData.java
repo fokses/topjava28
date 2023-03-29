@@ -31,6 +31,8 @@ public class MealTestData {
 
     public static final List<Meal> meals = List.of(meal7, meal6, meal5, meal4, meal3, meal2, meal1);
 
+    public static final List<Meal> adminMeals = List.of(adminMeal2, adminMeal1);
+
     public static final LocalDateTime startDateTime = LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0, 0);
 
     public static final LocalDateTime endDateTime = LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0, 0);
