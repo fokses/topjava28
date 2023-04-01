@@ -14,7 +14,7 @@
 <div class="jumbotron pt-4">
     <div class="container">
         <h3 class="text-center"><spring:message code="meal.title"/></h3>
-        <form method="get" action="meals/filter">
+        <form id="filterForm" method="get" action="ajax/meals/filter">
             <dl>
                 <dt><spring:message code="meal.startDate"/>:</dt>
                 <dd><input type="date" name="startDate" value="${param.startDate}"></dd>

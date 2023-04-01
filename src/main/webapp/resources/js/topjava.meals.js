@@ -38,4 +38,11 @@ $(function () {
             ]
         })
     );
+
+    $("#filterForm").submit(function (event) {
+        var formUrl = $(this).prop('action');
+
+        updateTableByUrl(formUrl + "?" + $(this).serialize());
+        event.preventDefault();
+    });
 });

@@ -33,7 +33,11 @@ function deleteRow(id) {
 }
 
 function updateTable() {
-    $.get(ctx.ajaxUrl, function (data) {
+    updateTableByUrl(ctx.ajaxUrl);
+}
+
+function updateTableByUrl(url) {
+    $.get(url, function (data) {
         ctx.datatableApi.clear().rows.add(data).draw();
     });
 }
