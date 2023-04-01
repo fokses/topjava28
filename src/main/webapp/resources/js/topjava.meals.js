@@ -45,4 +45,10 @@ $(function () {
         updateTableByUrl(formUrl + "?" + $(this).serialize());
         event.preventDefault();
     });
+
+    $("#filterReset").click(function(event) {
+        $("#filterForm :input").each(function() {
+            $(this).val("");
+        })
+    })
 });
