@@ -44,4 +44,22 @@ $(function () {
             ]
         })
     );
+
+    $(".userEnabled").change(function() {
+        var id = $(this).closest('tr').attr("id");
+
+        $.ajax({
+            url: ctx.ajaxUrl + "set-enabled/" + id + "/?enabled=" + this.checked,
+            type: "PATCH"
+        }).done(function () {
+            updateTable();
+
+            var columnNumber = 3; //first column
+            $.each($("#datatable").find("tr"), function(){
+                var tdOfCurrentColumn = $(this).children().eq(columnNumber);
+            });
+
+            successNoty("User enable status updated");
+        });
+    })
 });
