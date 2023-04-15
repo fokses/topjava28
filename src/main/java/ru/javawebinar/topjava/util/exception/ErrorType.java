@@ -6,6 +6,7 @@ public enum ErrorType {
     APP_ERROR("Application error"),
     DATA_NOT_FOUND("Data not found"),
     DATA_ERROR("Data error"),
+    USER_MAIL_DUPLICATE("User mail duplicate"),
     VALIDATION_ERROR("Data validation error");
 
     private final String description;
